@@ -379,19 +379,22 @@ export default function DesignerMode() {
         const dx = (1000 - sw) / 2;
         const dy = (1000 - sh) / 2;
 
-        // 依 300 DPI 印刷標準將 1.4mm 轉換為物理像素 (1mm = 11.811px, 1.4mm = 16.53px)
-        const mmToPx = 300 / 25.4;
-        const shadowSizeInPx = 1.4 * mmToPx;
+        // 縮小散射程度 (模糊半徑設為 9px，約 0.76mm，小於 1.4mm 限制)
+        const shadowBlurSize = 9; 
+        
+        // 加上極微小的右下偏移動作，使偏硬的陰影能透出 (X=3px, Y=5px，皆在 1.4mm 限制內)
+        const shadowOffsetX = 3;
+        const shadowOffsetY = 5;
 
         // 1. 繪製色彩增值 (Multiply) 的疊印陰影
         exportCtx.save();
         exportCtx.globalCompositeOperation = 'multiply';
-        exportCtx.shadowColor = 'rgba(0, 0, 0, 0.75)'; // 75% 不透明度
-        exportCtx.shadowBlur = shadowSizeInPx;          // 限制在 1.4mm 的陰影模糊範圍
-        exportCtx.shadowOffsetX = 10000;                // 偏移至畫布外繪製以實現「只繪製陰影」
-        exportCtx.shadowOffsetY = 0;
+        exportCtx.shadowColor = 'rgba(0, 0, 0, 0.90)'; // 加深陰影至 90% 不透明度
+        exportCtx.shadowBlur = shadowBlurSize;          // 縮小散射
+        exportCtx.shadowOffsetX = 10000 + shadowOffsetX;// 偏移至畫布外繪製以實現「只繪製陰影」
+        exportCtx.shadowOffsetY = shadowOffsetY;
 
-        // 在 X 軸向左偏移 10000px 繪製圖片，陰影偏移 +10000px 會精確落回 dx, dy
+        // 在 X 軸向左偏移 10000px 繪製圖片，陰影偏移將會精確落回 dx + shadowOffsetX, dy + shadowOffsetY
         exportCtx.drawImage(imgClean, targetX, targetY, targetW, targetH, dx - 10000, dy, sw, sh);
         exportCtx.restore(); // 恢復預設的疊加模式 (source-over)
 
