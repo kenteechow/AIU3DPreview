@@ -379,18 +379,18 @@ export default function DesignerMode() {
         const dx = (1000 - sw) / 2;
         const dy = (1000 - sh) / 2;
 
-        // 縮小散射程度 (模糊半徑設為 9px，約 0.76mm，小於 1.4mm 限制)
-        const shadowBlurSize = 9; 
+        // 縮小散射程度 (模糊半徑設為 5px，呈現聚攏邊緣)
+        const shadowBlurSize = 5; 
         
-        // 加上極微小的右下偏移動作，使偏硬的陰影能透出 (X=3px, Y=5px，皆在 1.4mm 限制內)
-        const shadowOffsetX = 3;
-        const shadowOffsetY = 5;
+        // 增加右下偏移量 (X=6px, Y=10px)，確保上方與左方完全無陰影露出
+        const shadowOffsetX = 6;
+        const shadowOffsetY = 10;
 
         // 1. 繪製色彩增值 (Multiply) 的疊印陰影
         exportCtx.save();
         exportCtx.globalCompositeOperation = 'multiply';
-        exportCtx.shadowColor = 'rgba(0, 0, 0, 0.90)'; // 加深陰影至 90% 不透明度
-        exportCtx.shadowBlur = shadowBlurSize;          // 縮小散射
+        exportCtx.shadowColor = 'rgba(0, 0, 0, 0.45)'; // 降低不透明度至 45% 以使陰影變淡
+        exportCtx.shadowBlur = shadowBlurSize;          // 偏硬、聚攏的邊緣
         exportCtx.shadowOffsetX = 10000 + shadowOffsetX;// 偏移至畫布外繪製以實現「只繪製陰影」
         exportCtx.shadowOffsetY = shadowOffsetY;
 
