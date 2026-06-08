@@ -379,21 +379,24 @@ export default function DesignerMode() {
         const dx = (1000 - sw) / 2;
         const dy = (1000 - sh) / 2;
 
-        // 直接對設計稿圖案內容本身（文字、標籤、不規則圖形）套用立體懸浮陰影
-        exportCtx.shadowColor = 'rgba(0, 0, 0, 0.22)'; // 明確的投影顏色
-        exportCtx.shadowBlur = 20;                     // 柔和模糊半徑
-        exportCtx.shadowOffsetX = 4;                    // 向右偏移 4px
-        exportCtx.shadowOffsetY = 8;                    // 向下偏移 8px
+        // 依 300 DPI 印刷標準將 1.4mm 轉換為物理像素 (1mm = 11.811px, 1.4mm = 16.53px)
+        const mmToPx = 300 / 25.4;
+        const shadowSizeInPx = 1.4 * mmToPx;
 
-        // 重新繪製純淨主體產品截面 (從 imgClean)
-        // 這樣若設計稿為透明背景，陰影將會極其精緻地投射在每個有色圖案/文字的輪廓邊緣
-        exportCtx.drawImage(imgClean, targetX, targetY, targetW, targetH, dx, dy, sw, sh);
-
-        // 重置陰影設定，避免影響後續操作
-        exportCtx.shadowColor = 'transparent';
-        exportCtx.shadowBlur = 0;
-        exportCtx.shadowOffsetX = 0;
+        // 1. 繪製色彩增值 (Multiply) 的疊印陰影
+        exportCtx.save();
+        exportCtx.globalCompositeOperation = 'multiply';
+        exportCtx.shadowColor = 'rgba(0, 0, 0, 0.75)'; // 75% 不透明度
+        exportCtx.shadowBlur = shadowSizeInPx;          // 限制在 1.4mm 的陰影模糊範圍
+        exportCtx.shadowOffsetX = 10000;                // 偏移至畫布外繪製以實現「只繪製陰影」
         exportCtx.shadowOffsetY = 0;
+
+        // 在 X 軸向左偏移 10000px 繪製圖片，陰影偏移 +10000px 會精確落回 dx, dy
+        exportCtx.drawImage(imgClean, targetX, targetY, targetW, targetH, dx - 10000, dy, sw, sh);
+        exportCtx.restore(); // 恢復預設的疊加模式 (source-over)
+
+        // 2. 正常繪製純淨的設計稿主體，不帶陰影以防止色彩失真
+        exportCtx.drawImage(imgClean, targetX, targetY, targetW, targetH, dx, dy, sw, sh);
 
         refinedFaces[key] = exportCanvas.toDataURL('image/png');
       }
