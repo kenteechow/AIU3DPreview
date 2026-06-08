@@ -379,30 +379,23 @@ export default function DesignerMode() {
         const dx = (1000 - sw) / 2;
         const dy = (1000 - sh) / 2;
 
-        // 縮小散射程度 (模糊半徑設為 5px，呈現聚攏邊緣)
-        const shadowBlurSize = 5; 
-        
-        // 增加右下偏移量 (X=6px, Y=10px)，確保上方與左方無陰影露出
-        const shadowOffsetX = 6;
-        const shadowOffsetY = 10;
+        // 調整為自然美觀的散射模糊度 (10px)，X/Y 軸均向右下位移 (X=3px, Y=5px)
+        // 這會使頂部與左方的陰影自然縮小並極致淡化（約為右下方的 20% 效果），呈現柔和的正常散射
+        const shadowBlurSize = 10; 
+        const shadowOffsetX = 3;
+        const shadowOffsetY = 5;
 
-        // 1. 繪製色彩增值 (Multiply) 的疊印陰影 (使用 clip 限制頂部與左側不產生陰影)
+        // 1. 繪製色彩增值 (Multiply) 的疊印陰影 (自然物理光學過渡，無 clip 生硬切面)
         exportCtx.save();
-        
-        // 建立剪裁區，把陰影範圍限制在頂部與左側邊線內側 (從 dx + 3, dy + 3 開始)，徹底封鎖頂部與左方的陰影溢出
-        exportCtx.beginPath();
-        exportCtx.rect(dx + 3, dy + 3, sw + 200, 1000 - dy);
-        exportCtx.clip();
-
         exportCtx.globalCompositeOperation = 'multiply';
-        exportCtx.shadowColor = 'rgba(0, 0, 0, 0.45)'; // 45% 不透明度
-        exportCtx.shadowBlur = shadowBlurSize;          // 偏硬、聚攏的邊緣
+        exportCtx.shadowColor = 'rgba(0, 0, 0, 0.20)'; // 大幅減淡強度至 20% 不透明度
+        exportCtx.shadowBlur = shadowBlurSize;          // 正常、美觀的散射半徑
         exportCtx.shadowOffsetX = 10000 + shadowOffsetX;// 偏移至畫布外繪製以實現「只繪製陰影」
         exportCtx.shadowOffsetY = shadowOffsetY;
 
         // 在 X 軸向左偏移 10000px 繪製圖片，陰影偏移將會精確落回 dx + shadowOffsetX, dy + shadowOffsetY
         exportCtx.drawImage(imgClean, targetX, targetY, targetW, targetH, dx - 10000, dy, sw, sh);
-        exportCtx.restore(); // 恢復預設的疊加模式 (source-over) 與剪裁區
+        exportCtx.restore(); // 恢復預設的疊加模式 (source-over)
 
         // 2. 正常繪製純淨的設計稿主體，不帶陰影以防止色彩失真
         exportCtx.drawImage(imgClean, targetX, targetY, targetW, targetH, dx, dy, sw, sh);
