@@ -379,25 +379,41 @@ export default function DesignerMode() {
         const dx = (1000 - sw) / 2;
         const dy = (1000 - sh) / 2;
 
-        // 調整為自然美觀的散射模糊度 (10px)，X/Y 軸均向右下位移 (X=3px, Y=5px)
-        // 這會使頂部與左方的陰影自然縮小並極致淡化（約為右下方的 20% 效果），呈現柔和的正常散射
-        const shadowBlurSize = 10; 
-        const shadowOffsetX = 3;
-        const shadowOffsetY = 5;
+        // 設置精確的物理投影參數 (Blur=6px, X=4.8px, Y=5.4px)，自然形成左/頂僅 20% 以下超細微影
+        const shadowBlurSize = 6; 
+        const shadowOffsetX = 4.8;
+        const shadowOffsetY = 5.4;
 
-        // 1. 繪製色彩增值 (Multiply) 的疊印陰影 (自然物理光學過渡，無 clip 生硬切面)
+        // 1. 建立一個離屏 Canvas 用以單獨渲染羽化陰影，避免 10000px 大偏移所造成的瀏覽器 GPU 陰影失真 bug
+        const tempShadowCanvas = document.createElement('canvas');
+        tempShadowCanvas.width = 1000;
+        tempShadowCanvas.height = 1000;
+        const tempShadowCtx = tempShadowCanvas.getContext('2d');
+
+        // 設置極淡的 15% 不透明度陰影與精緻的羽化半徑
+        tempShadowCtx.shadowColor = 'rgba(0, 0, 0, 0.15)'; 
+        tempShadowCtx.shadowBlur = shadowBlurSize;
+        tempShadowCtx.shadowOffsetX = shadowOffsetX;
+        tempShadowCtx.shadowOffsetY = shadowOffsetY;
+
+        // 先在此離屏畫布上繪製出帶有陰影的圖片
+        tempShadowCtx.drawImage(imgClean, targetX, targetY, targetW, targetH, dx, dy, sw, sh);
+
+        // 使用 destination-out 混合模式，將圖片本體扣除，只在離屏畫布上留下純淨且邊緣柔和的羽化陰影
+        tempShadowCtx.globalCompositeOperation = 'destination-out';
+        tempShadowCtx.shadowColor = 'transparent';
+        tempShadowCtx.shadowBlur = 0;
+        tempShadowCtx.shadowOffsetX = 0;
+        tempShadowCtx.shadowOffsetY = 0;
+        tempShadowCtx.drawImage(imgClean, targetX, targetY, targetW, targetH, dx, dy, sw, sh);
+
+        // 2. 將此完美的離屏羽化陰影，以色彩增值 (Multiply) 模式疊印到主畫布上
         exportCtx.save();
         exportCtx.globalCompositeOperation = 'multiply';
-        exportCtx.shadowColor = 'rgba(0, 0, 0, 0.20)'; // 大幅減淡強度至 20% 不透明度
-        exportCtx.shadowBlur = shadowBlurSize;          // 正常、美觀的散射半徑
-        exportCtx.shadowOffsetX = 10000 + shadowOffsetX;// 偏移至畫布外繪製以實現「只繪製陰影」
-        exportCtx.shadowOffsetY = shadowOffsetY;
+        exportCtx.drawImage(tempShadowCanvas, 0, 0);
+        exportCtx.restore();
 
-        // 在 X 軸向左偏移 10000px 繪製圖片，陰影偏移將會精確落回 dx + shadowOffsetX, dy + shadowOffsetY
-        exportCtx.drawImage(imgClean, targetX, targetY, targetW, targetH, dx - 10000, dy, sw, sh);
-        exportCtx.restore(); // 恢復預設的疊加模式 (source-over)
-
-        // 2. 正常繪製純淨的設計稿主體，不帶陰影以防止色彩失真
+        // 3. 正常以 source-over 繪製純淨的設計稿主體，不帶陰影以防色彩偏差
         exportCtx.drawImage(imgClean, targetX, targetY, targetW, targetH, dx, dy, sw, sh);
 
         refinedFaces[key] = exportCanvas.toDataURL('image/png');
