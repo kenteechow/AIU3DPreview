@@ -1062,6 +1062,53 @@ export default function DesignerMode() {
                     }}
                   />
 
+                  {/* 2D Face Previews */}
+                  <div style={{ padding: '1rem', background: '#1e293b', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#94a3b8' }}>當前獨立面裁切預覽：</h4>
+                    <div style={{ display: 'flex', gap: '15px', overflowX: 'auto', paddingBottom: '5px' }}>
+                      {Object.keys(faces.export).map(key => (
+                        faces.export[key] && (
+                          <div key={key} style={{ background: 'rgba(255,255,255,0.05)', padding: '8px', borderRadius: '8px', textAlign: 'center', minWidth: '85px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <div style={{ width: '60px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: '#090f19', borderRadius: '6px' }}>
+                              <img 
+                                src={faces.export[key]} 
+                                alt={key} 
+                                style={{ 
+                                  maxWidth: '100%', 
+                                  maxHeight: '100%', 
+                                  objectFit: 'contain',
+                                  transform: `rotate(${faceRotations[key] || 0}deg)`,
+                                  transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' 
+                                }} 
+                              />
+                            </div>
+                            <div style={{ fontSize: '0.75rem', color: '#e2e8f0', fontWeight: '500', textTransform: 'capitalize' }}>{key}</div>
+                            <button 
+                              onClick={() => handleRotateFace(key)} 
+                              style={{
+                                background: 'rgba(59, 130, 246, 0.15)',
+                                border: '1px solid rgba(59, 130, 246, 0.3)',
+                                borderRadius: '4px',
+                                color: '#60a5fa',
+                                padding: '2px 8px',
+                                fontSize: '0.7rem',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '2px'
+                              }}
+                              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(59, 130, 246, 0.3)'; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(59, 130, 246, 0.15)'; }}
+                            >
+                              🔄 旋轉 90°
+                            </button>
+                          </div>
+                        )
+                      ))}
+                    </div>
+                  </div>
+
                   <div style={{ display: 'flex', gap: '20px', flexDirection: 'row', alignItems: 'flex-start' }}>
                     <div style={{ flex: 1 }}>
                       <ProductCropper 
@@ -1172,52 +1219,6 @@ export default function DesignerMode() {
                 </div>
               )}
 
-              {/* 2D Face Previews */}
-              <div style={{ padding: '1rem', background: '#0f172a', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#94a3b8' }}>當前獨立面裁切預覽：</h4>
-                <div style={{ display: 'flex', gap: '15px', overflowX: 'auto', paddingBottom: '5px' }}>
-                  {Object.keys(faces.export).map(key => (
-                    faces.export[key] && (
-                      <div key={key} style={{ background: 'rgba(255,255,255,0.05)', padding: '8px', borderRadius: '8px', textAlign: 'center', minWidth: '85px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                        <div style={{ width: '60px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: '#090f19', borderRadius: '6px' }}>
-                          <img 
-                            src={faces.export[key]} 
-                            alt={key} 
-                            style={{ 
-                              maxWidth: '100%', 
-                              maxHeight: '100%', 
-                              objectFit: 'contain',
-                              transform: `rotate(${faceRotations[key] || 0}deg)`,
-                              transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' 
-                            }} 
-                          />
-                        </div>
-                        <div style={{ fontSize: '0.75rem', color: '#e2e8f0', fontWeight: '500', textTransform: 'capitalize' }}>{key}</div>
-                        <button 
-                          onClick={() => handleRotateFace(key)} 
-                          style={{
-                            background: 'rgba(59, 130, 246, 0.15)',
-                            border: '1px solid rgba(59, 130, 246, 0.3)',
-                            borderRadius: '4px',
-                            color: '#60a5fa',
-                            padding: '2px 8px',
-                            fontSize: '0.7rem',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '2px'
-                          }}
-                          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(59, 130, 246, 0.3)'; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(59, 130, 246, 0.15)'; }}
-                        >
-                          🔄 旋轉 90°
-                        </button>
-                      </div>
-                    )
-                  ))}
-                </div>
-              </div>
               {/* Composited Images Visualizer */}
               {(compositedImage || aiSceneImage) && (
                 <div style={{ padding: '1rem', background: '#0f172a', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
