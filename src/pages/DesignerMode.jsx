@@ -379,14 +379,14 @@ export default function DesignerMode() {
         const dx = (1000 - sw) / 2;
         const dy = (1000 - sh) / 2;
 
-        // 直接對設計稿圖案內容本身（文字、標籤、不規則圖形）套用立體懸浮陰影
-        exportCtx.shadowColor = 'rgba(0, 0, 0, 0.22)'; // 明確的投影顏色
-        exportCtx.shadowBlur = 20;                     // 柔和模糊半徑
-        exportCtx.shadowOffsetX = 4;                    // 向右偏移 4px
-        exportCtx.shadowOffsetY = 8;                    // 向下偏移 8px
+        // 套用基礎陰影：光源從左上角射入 (投影朝向右下方)，不透明度 10%，模糊半徑 20px
+        exportCtx.shadowColor = 'rgba(0, 0, 0, 0.10)'; // 10% 不透明度，柔和淡雅
+        exportCtx.shadowBlur = 20;                     // 20px 散射模糊半徑
+        exportCtx.shadowOffsetX = 6;                    // 向右偏移 6px
+        exportCtx.shadowOffsetY = 6;                    // 向下偏移 6px
 
         // 重新繪製純淨主體產品截面 (從 imgClean)
-        // 這樣若設計稿為透明背景，陰影將會極其精緻地投射在每個有色圖案/文字的輪廓邊緣
+        // 陰影將會柔和且自然地沿著設計稿圖案/文字的輪廓邊緣，朝右下方投射
         exportCtx.drawImage(imgClean, targetX, targetY, targetW, targetH, dx, dy, sw, sh);
 
         // 重置陰影設定，避免影響後續操作
