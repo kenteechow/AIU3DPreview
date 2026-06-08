@@ -379,8 +379,21 @@ export default function DesignerMode() {
         const dx = (1000 - sw) / 2;
         const dy = (1000 - sh) / 2;
 
+        // 為導出圖案加上優雅立體懸浮陰影
+        exportCtx.shadowColor = 'rgba(0, 0, 0, 0.12)';
+        exportCtx.shadowBlur = 25;
+        exportCtx.shadowOffsetX = 0;
+        exportCtx.shadowOffsetY = 12;
+
         // 重新繪製純淨主體產品截面 (從 imgClean)
         exportCtx.drawImage(imgClean, targetX, targetY, targetW, targetH, dx, dy, sw, sh);
+
+        // 重置陰影避免影響後續操作
+        exportCtx.shadowColor = 'transparent';
+        exportCtx.shadowBlur = 0;
+        exportCtx.shadowOffsetX = 0;
+        exportCtx.shadowOffsetY = 0;
+
         refinedFaces[key] = exportCanvas.toDataURL('image/png');
       }
 
