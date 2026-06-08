@@ -379,42 +379,21 @@ export default function DesignerMode() {
         const dx = (1000 - sw) / 2;
         const dy = (1000 - sh) / 2;
 
-        // 設置精確的物理投影參數 (Blur=6px, X=4.8px, Y=5.4px)，自然形成左/頂僅 20% 以下超細微影
-        const shadowBlurSize = 6; 
-        const shadowOffsetX = 4.8;
-        const shadowOffsetY = 5.4;
+        // 直接對設計稿圖案內容本身（文字、標籤、不規則圖形）套用立體懸浮陰影
+        exportCtx.shadowColor = 'rgba(0, 0, 0, 0.22)'; // 明確的投影顏色
+        exportCtx.shadowBlur = 20;                     // 柔和模糊半徑
+        exportCtx.shadowOffsetX = 4;                    // 向右偏移 4px
+        exportCtx.shadowOffsetY = 8;                    // 向下偏移 8px
 
-        // 1. 建立一個離屏 Canvas 用以單獨渲染羽化陰影，避免 10000px 大偏移所造成的瀏覽器 GPU 陰影失真 bug
-        const tempShadowCanvas = document.createElement('canvas');
-        tempShadowCanvas.width = 1000;
-        tempShadowCanvas.height = 1000;
-        const tempShadowCtx = tempShadowCanvas.getContext('2d');
-
-        // 設置極淡的 15% 不透明度陰影與精緻的羽化半徑
-        tempShadowCtx.shadowColor = 'rgba(0, 0, 0, 0.15)'; 
-        tempShadowCtx.shadowBlur = shadowBlurSize;
-        tempShadowCtx.shadowOffsetX = shadowOffsetX;
-        tempShadowCtx.shadowOffsetY = shadowOffsetY;
-
-        // 先在此離屏畫布上繪製出帶有陰影的圖片
-        tempShadowCtx.drawImage(imgClean, targetX, targetY, targetW, targetH, dx, dy, sw, sh);
-
-        // 使用 destination-out 混合模式，將圖片本體扣除，只在離屏畫布上留下純淨且邊緣柔和的羽化陰影
-        tempShadowCtx.globalCompositeOperation = 'destination-out';
-        tempShadowCtx.shadowColor = 'transparent';
-        tempShadowCtx.shadowBlur = 0;
-        tempShadowCtx.shadowOffsetX = 0;
-        tempShadowCtx.shadowOffsetY = 0;
-        tempShadowCtx.drawImage(imgClean, targetX, targetY, targetW, targetH, dx, dy, sw, sh);
-
-        // 2. 將此完美的離屏羽化陰影，以色彩增值 (Multiply) 模式疊印到主畫布上
-        exportCtx.save();
-        exportCtx.globalCompositeOperation = 'multiply';
-        exportCtx.drawImage(tempShadowCanvas, 0, 0);
-        exportCtx.restore();
-
-        // 3. 正常以 source-over 繪製純淨的設計稿主體，不帶陰影以防色彩偏差
+        // 重新繪製純淨主體產品截面 (從 imgClean)
+        // 這樣若設計稿為透明背景，陰影將會極其精緻地投射在每個有色圖案/文字的輪廓邊緣
         exportCtx.drawImage(imgClean, targetX, targetY, targetW, targetH, dx, dy, sw, sh);
+
+        // 重置陰影設定，避免影響後續操作
+        exportCtx.shadowColor = 'transparent';
+        exportCtx.shadowBlur = 0;
+        exportCtx.shadowOffsetX = 0;
+        exportCtx.shadowOffsetY = 0;
 
         refinedFaces[key] = exportCanvas.toDataURL('image/png');
       }
