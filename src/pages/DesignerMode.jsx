@@ -386,12 +386,12 @@ export default function DesignerMode() {
         const shadowOffsetX = 6;
         const shadowOffsetY = 10;
 
-        // 1. 繪製色彩增值 (Multiply) 的疊印陰影 (使用 clip 限制頂部不產生陰影)
+        // 1. 繪製色彩增值 (Multiply) 的疊印陰影 (使用 clip 限制頂部與左側不產生陰影)
         exportCtx.save();
         
-        // 建立剪裁區，把陰影範圍限制在頂部邊線下方 (從 dy + 3 開始)，徹底封鎖頂部上方的陰影溢出
+        // 建立剪裁區，把陰影範圍限制在頂部與左側邊線內側 (從 dx + 3, dy + 3 開始)，徹底封鎖頂部與左方的陰影溢出
         exportCtx.beginPath();
-        exportCtx.rect(dx - 100, dy + 3, sw + 200, 1000 - dy);
+        exportCtx.rect(dx + 3, dy + 3, sw + 200, 1000 - dy);
         exportCtx.clip();
 
         exportCtx.globalCompositeOperation = 'multiply';
