@@ -379,20 +379,28 @@ export default function DesignerMode() {
         const dx = (1000 - sw) / 2;
         const dy = (1000 - sh) / 2;
 
-        // 為導出圖案加上優雅立體懸浮陰影
-        exportCtx.shadowColor = 'rgba(0, 0, 0, 0.12)';
-        exportCtx.shadowBlur = 25;
+        // 1. 先在設計稿下方繪製一個帶有立體懸浮陰影的白色實心底框
+        exportCtx.shadowColor = 'rgba(0, 0, 0, 0.18)'; // 顯著的陰影透明度
+        exportCtx.shadowBlur = 30;                     // 較大的模糊半徑以產生柔和過渡
         exportCtx.shadowOffsetX = 0;
-        exportCtx.shadowOffsetY = 12;
+        exportCtx.shadowOffsetY = 15;                  // 向下偏移 15px 塑造懸浮立體感
 
-        // 重新繪製純淨主體產品截面 (從 imgClean)
-        exportCtx.drawImage(imgClean, targetX, targetY, targetW, targetH, dx, dy, sw, sh);
+        exportCtx.fillStyle = '#ffffff';
+        exportCtx.fillRect(dx, dy, sw, sh);
 
-        // 重置陰影避免影響後續操作
+        // 2. 在底框四周描繪一圈極淡的灰色 1px 邊框，確保白色設計稿邊界清晰
+        exportCtx.strokeStyle = 'rgba(0, 0, 0, 0.05)';
+        exportCtx.lineWidth = 1;
+        exportCtx.strokeRect(dx, dy, sw, sh);
+
+        // 3. 重置陰影設定，避免隨後繪製圖片時疊加陰影造成文字發虚
         exportCtx.shadowColor = 'transparent';
         exportCtx.shadowBlur = 0;
         exportCtx.shadowOffsetX = 0;
         exportCtx.shadowOffsetY = 0;
+
+        // 4. 將純淨的設計稿主體 (從 imgClean) 完美覆蓋繪製於該底框上
+        exportCtx.drawImage(imgClean, targetX, targetY, targetW, targetH, dx, dy, sw, sh);
 
         refinedFaces[key] = exportCanvas.toDataURL('image/png');
       }
